@@ -1,0 +1,60 @@
+name: mp-md-issues
+
+on:
+  push:
+    paths:
+      - 'mp-readme.md'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # 需要完整历史做 diff
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests beautifulsoup4 markdownify lxml
+
+      - name: Parse readme
+        run: python scripts/parse_readme.py
+
+      - name: Diff lines
+        id: diff
+        run: python scripts/diff_lines.py
+
+      - name: Fetch new articles
+        if: steps.diff.outputs.has_new == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python scripts/fetch_article.py
+
+      - name: Sync issues
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: python scripts/sync_issues.py
+
+      - name: Commit generated files
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add mp_md .mp_state.json
+          if ! git diff --cached --quiet; then
+            git commit -m "chore: sync mp articles [skip ci]"
+            git push
+          fi
