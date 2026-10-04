@@ -1,3 +1,4 @@
+# .github/workflows/mp-md-issues.yml
 name: MP Markdown to Issues
 
 on:
@@ -49,7 +50,8 @@ jobs:
             --output mp_md \
             --changes changes.json
 
-      - name: Create new Issues
+      # ---------- 本仓库 Issues 操作 ----------
+      - name: Create new Issues (this repo)
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -60,7 +62,7 @@ jobs:
             --changes changes.json \
             --token ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Update modified Issues
+      - name: Update modified Issues (this repo)
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -71,7 +73,7 @@ jobs:
             --changes changes.json \
             --token ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Delete removed Issues
+      - name: Delete removed Issues (this repo)
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -80,6 +82,39 @@ jobs:
             --changes changes.json \
             --token ${{ secrets.GITHUB_TOKEN }}
 
+      # ---------- 同步到目标仓库 shenjuexiao/mp-md-out ----------
+      - name: Create new Issues (target repo)
+        env:
+          GH_TOKEN: ${{ secrets.MP_MD }}
+        run: |
+          python scripts/mp_issue_create.py \
+            --repo shenjuexiao/mp-md-out \
+            --readme mp-readme.md \
+            --md-dir mp_md \
+            --changes changes.json \
+            --token ${{ secrets.MP_MD }}
+
+      - name: Update modified Issues (target repo)
+        env:
+          GH_TOKEN: ${{ secrets.MP_MD }}
+        run: |
+          python scripts/mp_issue_update.py \
+            --repo shenjuexiao/mp-md-out \
+            --readme mp-readme.md \
+            --md-dir mp_md \
+            --changes changes.json \
+            --token ${{ secrets.MP_MD }}
+
+      - name: Delete removed Issues (target repo)
+        env:
+          GH_TOKEN: ${{ secrets.MP_MD }}
+        run: |
+          python scripts/mp_issue_delete.py \
+            --repo shenjuexiao/mp-md-out \
+            --changes changes.json \
+            --token ${{ secrets.MP_MD }}
+
+      # ---------- 提交生成的 markdown ----------
       - name: Commit generated markdown
         run: |
           git config user.name "github-actions[bot]"
