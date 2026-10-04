@@ -1,14 +1,8 @@
-# scripts/mp_extract-0.0.0.py
+# scripts/mp_extract-0.0.2.py
 # github.com/shenjuexiao
 # 20261004
 
-# v0.0.0-20261004
-# chat.deepseek.com/a/chat/s/c27d6549-bdeb-497b-889d-3873dd7a6efc
-
-# v0.0.1-20261004
-# chat.deepseek.com/a/chat/s/0ed62da4-8110-434e-b329-7aa393fcc4d4
-# 抓取发布时间和原文中间，增加作者
-
+# scripts/mp_extract.py
 #!/usr/bin/env python3
 """提取公众号文章为 markdown，存储到 mp_md/{发布时间}_{文章标题}.md"""
 import argparse
@@ -16,6 +10,7 @@ import json
 import re
 import sys
 from pathlib import Path
+from urllib.parse import urljoin
 
 import requests
 from bs4 import BeautifulSoup
@@ -38,20 +33,48 @@ def sanitize(name: str) -> str:
 
 def extract_author(soup: BeautifulSoup) -> str:
     """从页面中提取作者名"""
-    # 公众号文章常见的作者容器
-    for sel in ("#js_name", ".rich_media_meta.rich_media_meta_text", "#meta_content .rich_media_meta_text"):
+    for sel in (
+        "#js_name",
+        ".rich_media_meta.rich_media_meta_text",
+        "#meta_content .rich_media_meta_text",
+    ):
         node = soup.select_one(sel)
         if node:
             text = node.get_text(strip=True)
             if text:
                 return text
 
-    # 退而求其次：meta 标签
     meta = soup.find("meta", attrs={"name": "author"})
     if meta and meta.get("content"):
         return meta["content"].strip()
 
     return "未知"
+
+
+def normalize_images(content: BeautifulSoup) -> None:
+    """将微信懒加载图片的 data-src 提升为 src，并去掉无意义属性"""
+    for img in content.find_all("img"):
+        # 微信常见懒加载属性
+        for attr in ("data-src", "data-original", "data-backsrc"):
+            real = img.get(attr)
+            if real:
+                img["src"] = real
+                break
+
+        # 若仍无 src，尝试从 srcset 取第一个
+        if not img.get("src") and img.get("srcset"):
+            first = img["srcset"].split(",")[0].strip().split(" ")[0]
+            if first:
+                img["src"] = first
+
+        # 清理多余属性，避免生成噪声
+        for attr in list(img.attrs):
+            if attr not in ("src", "alt", "title"):
+                del img[attr]
+
+        # 补全相对路径
+        if img.get("src") and not re.match(r"^(https?:)?//", img["src"]):
+            img["src"] = urljoin("https://mp.weixin.qq.com/", img["src"])
 
 
 def extract_article(url: str):
@@ -70,8 +93,12 @@ def extract_article(url: str):
     for tag in content.select("script, style"):
         tag.decompose()
 
+    # 处理图片（关键修复：保留图片）
+    normalize_images(content)
+
     html = str(content)
-    text = md(html, heading_style="ATX", strip=["img"])
+    # 注意：不再 strip=["img"]，图片会被转换为 ![alt](src)
+    text = md(html, heading_style="ATX")
     # 折叠多余空行
     text = re.sub(r"\n{3,}", "\n\n", text).strip()
     return text, author
@@ -99,10 +126,6 @@ def main():
         link = item["link"]
         filename = f"{sanitize(pub_time)}_{sanitize(title)}.md"
         out_path = out_dir / filename
-
-        if out_path.exists() and item in changes.get("updated", []):
-            # 已存在且是更新，仍重新抓取覆盖
-            pass
 
         try:
             print(f"抓取: {title} -> {link}")
