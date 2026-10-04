@@ -25,14 +25,35 @@ def sanitize(name: str) -> str:
     return name[:120] or "untitled"
 
 
-def extract_article(url: str) -> str:
+def extract_author(soup: BeautifulSoup) -> str:
+    """从页面中提取作者名"""
+    # 公众号文章常见的作者容器
+    for sel in ("#js_name", ".rich_media_meta.rich_media_meta_text", "#meta_content .rich_media_meta_text"):
+        node = soup.select_one(sel)
+        if node:
+            text = node.get_text(strip=True)
+            if text:
+                return text
+
+    # 退而求其次：meta 标签
+    meta = soup.find("meta", attrs={"name": "author"})
+    if meta and meta.get("content"):
+        return meta["content"].strip()
+
+    return "未知"
+
+
+def extract_article(url: str):
+    """返回 (正文 markdown, 作者)"""
     resp = requests.get(url, headers=HEADERS, timeout=30)
     resp.raise_for_status()
     soup = BeautifulSoup(resp.text, "lxml")
 
+    author = extract_author(soup)
+
     content = soup.select_one("#js_content") or soup.select_one("article") or soup.body
     if not content:
-        return "_无法提取正文内容_"
+        return "_无法提取正文内容_", author
 
     # 清理脚本、样式
     for tag in content.select("script, style"):
@@ -42,7 +63,7 @@ def extract_article(url: str) -> str:
     text = md(html, heading_style="ATX", strip=["img"])
     # 折叠多余空行
     text = re.sub(r"\n{3,}", "\n\n", text).strip()
-    return text
+    return text, author
 
 
 def main():
@@ -74,11 +95,17 @@ def main():
 
         try:
             print(f"抓取: {title} -> {link}")
-            body = extract_article(link)
+            body, author = extract_article(link)
         except Exception as e:
-            body = f"_抓取失败: {e}_"
+            body, author = f"_抓取失败: {e}_", "未知"
 
-        header = f"# {title}\n\n> 发布时间：{pub_time}  \n> 原文：[{link}]({link})\n\n---\n\n"
+        header = (
+            f"# {title}\n\n"
+            f"> 发布时间：{pub_time}  \n"
+            f"> 作者：{author}  \n"
+            f"> 原文：[{link}]({link})\n\n"
+            f"---\n\n"
+        )
         out_path.write_text(header + body + "\n", encoding="utf-8")
         print(f"写入 {out_path}")
 
