@@ -1,10 +1,8 @@
-# scripts/mp_issue_delete-0.0.0.py
+# mp_issue_delete-0.0.0.py
 # github.com/shenjuexiao
 # 20261004
 
-# v0.0.0-20261004
-# chat.deepseek.com/a/chat/s/c27d6549-bdeb-497b-889d-3873dd7a6efc
-
+# scripts/mp_issue_delete.py
 #!/usr/bin/env python3
 """删除对应 Issue（mp-readme.md 中被删除的行）"""
 import argparse

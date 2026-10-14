@@ -1,10 +1,8 @@
-# scripts/detect_changes-0.0.0.py
+# detect_changes-0.0.0.py
 # github.com/shenjuexiao
 # 20261004
 
-# v0.0.0-20261004
-# chat.deepseek.com/a/chat/s/c27d6549-bdeb-497b-889d-3873dd7a6efc
-
+# scripts/detect_changes.py
 #!/usr/bin/env python3
 """检测 mp-readme.md 相对于上一次提交的变化"""
 import argparse

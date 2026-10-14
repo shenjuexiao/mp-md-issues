@@ -1,10 +1,8 @@
-# scripts/mp_issue_create-0.0.0.py
+# mp_issue_create-0.0.0.py
 # github.com/shenjuexiao
 # 20261004
 
-# v0.0.0-20261004
-# chat.deepseek.com/a/chat/s/c27d6549-bdeb-497b-889d-3873dd7a6efc
-
+# scripts/mp_issue_create.py
 #!/usr/bin/env python3
 """为新增文章创建 Issue，标签 MP"""
 import argparse
