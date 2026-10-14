@@ -1,12 +1,6 @@
-<<<<<<< HEAD
 # mp_extract-0.0.2.py
 # github.com/shenjuexiao
 # 20261005
-=======
-# scripts/mp_extract-0.0.2.py
-# github.com/shenjuexiao
-# 20261004
->>>>>>> 03b1cce30efbb644c82706dc5a84d2a2193c30a4
 
 # scripts/mp_extract.py
 #!/usr/bin/env python3
