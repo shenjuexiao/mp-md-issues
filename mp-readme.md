@@ -1,8 +1,8 @@
+# 公众号文章提取转发
+
 文章标题 | 发布时间 | 链接  
-<<<<<<< HEAD
-=======
 刚洗的杯子，怎么一倒热水就有“油污”跑出来？ | 2026年10月3日 | https://mp.weixin.qq.com/s/aHHZsapPnmKZC0N8YwFfZA  
 在怀来，烧饼店老板劝我别打包 | 2026年10月3日 | https://mp.weixin.qq.com/s/os3f6rUUywUROYRP3fCX3Q  
 Gaganote安卓端上线啦！ | 2026年9月4日 | https://mp.weixin.qq.com/s/3s28OGhYxXy_lyfLiBxizA  
 逃不过景区“冤种三件套”，年轻人开始只薅不买了 | 2026年10月4日 | https://mp.weixin.qq.com/s/5jgnVAMuWnkDhc3bNL2Mnw  
->>>>>>> 03b1cce30efbb644c82706dc5a84d2a2193c30a4
+

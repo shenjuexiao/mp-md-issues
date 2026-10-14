@@ -5,6 +5,7 @@
 # scripts/mp_extract.py
 #!/usr/bin/env python3
 """提取公众号文章为 markdown，存储到 mp_md/{发布时间}_{文章标题}.md"""
+
 import argparse
 import json
 import re

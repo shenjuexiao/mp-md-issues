@@ -5,6 +5,7 @@
 # scripts/mp_issue_delete.py
 #!/usr/bin/env python3
 """删除对应 Issue（mp-readme.md 中被删除的行）"""
+
 import argparse
 import json
 import sys

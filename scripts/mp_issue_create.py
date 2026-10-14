@@ -5,6 +5,7 @@
 # scripts/mp_issue_create.py
 #!/usr/bin/env python3
 """为新增文章创建 Issue，标签 MP"""
+
 import argparse
 import json
 import sys

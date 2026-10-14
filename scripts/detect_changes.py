@@ -5,6 +5,7 @@
 # scripts/detect_changes.py
 #!/usr/bin/env python3
 """检测 mp-readme.md 相对于上一次提交的变化"""
+
 import argparse
 import json
 import subprocess

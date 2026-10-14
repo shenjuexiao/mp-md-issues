@@ -5,6 +5,7 @@
 # scripts/mp_issue_update.py
 #!/usr/bin/env python3
 """更新已有 Issue（对应被修改的行）"""
+
 import argparse
 import json
 import re
